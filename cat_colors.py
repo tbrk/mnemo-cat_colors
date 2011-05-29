@@ -1,6 +1,6 @@
 ##############################################################################
 #
-# cat_colors.py <timbob@bigpond.com>
+# cat_colors.py <tim@tbrk.org>
 #
 # Add a cat_colors dictionary to $HOME/.mnemosyne/config.py, that maps
 # category names to X11 color names.
