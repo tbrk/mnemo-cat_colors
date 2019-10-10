@@ -13,8 +13,7 @@ INSTALLATION
 1. Copy cat_colors.py into the Mnemosyne plugins subdirectory.
 
 2. Add a cat_colors declaration to the Mnemosyne config.py file, e.g.:
-      `cat_colors = {"German": 0xFFFF0000, "dates": 0xFF00FF00, \
-  "world": 0xFF0000FF, "geography": 0xFFAABBCC}`
+      `cat_colors = {"German": 0xFFFF0000, "dates": 0xFF00FF00, "world": 0xFF0000FF, "geography": 0xFFAABBCC}`
 
    Tag names are given to the left of the colon (:), RGB hex values to the right.
 
