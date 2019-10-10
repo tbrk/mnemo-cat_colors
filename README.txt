@@ -1,8 +1,9 @@
-Color Categories Plugin v0.9
+Color Categories Plugin v1.0
 ----------------------------
-Author: T. Bourke 20080831
+Author: gbear605
+Inspired by: T. Bourke 20080831
 
-Change the window color depending on the current card's category.
+Change the window color depending on the current card's first tag.
 
 This plugin is a prototype only. Feedback and suggestions are welcome.
 
@@ -11,14 +12,15 @@ INSTALLATION
 1. Copy cat_colors.py into the Mnemosyne plugins subdirectory.
 
 2. Add a cat_colors declaration to the Mnemosyne config.py file, e.g.:
-      cat_colors = { 'French' : 'lightblue',
-		     'Dutch'  : 'orange',
-		     'English': 'red' }
+      cat_colors = {"German": 0xFFFF0000, "dates": 0xFF00FF00, \
+  "world": 0xFF0000FF, "geography": 0xFFAABBCC}
 
-   Category names are given to the left of the colon (:), CSS/HTML colour
-   names (http://en.wikipedia.org/wiki/X11_colors) to the right.
+   Tag names are given to the left of the colon (:), RGB hex values to the right.
 
-3. Start Mnemosyne. It will warn that a cat_colors variable does not exist.
+3. Optionally add a cat_color_default declaration to set the default color for tags that don't have a set color. If you don't add one, the default color will be white. e.g.:
+      cat_color_default = 0xFFFFFFFF
+
+3. Start Mnemosyne.
 
 4. Exit Mnemosyne.
 
@@ -27,9 +29,4 @@ INSTALLATION
 
 TODO
 ----
-* Fix storage and retrieval of original background color.
-* Color buttons properly
-  - calculate a lighter color for the 3D shadows.
-  - change the foreground text/line color if necessary
 * Improve configuration (GUI extensions?).
-
