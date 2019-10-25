@@ -30,3 +30,4 @@ INSTALLATION
 TODO
 ----
 * Improve configuration (GUI extensions?).
+* Make work on Android app and web server (requires changing Mnemosyne)
