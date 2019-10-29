@@ -26,23 +26,18 @@ class CatColorReplacer(Filter):
 
     def __init__(self, component_manager):
         Filter.__init__(self, component_manager)
-        print(self.config().keys())
         if(self.config()["cat_colors"] == None):
             self.config()["cat_colors"] = {}
         if(self.config()["cat_color_default"] == None):
             self.config()["cat_color_default"] = 0xFFFFFFFF
         self.cat_colors = self.config()["cat_colors"]
         self.default_cat_color = self.config()["cat_color_default"]
-        print(self.cat_colors)
 
     def run(self, text, card, fact_key, **render_args):
-        print(self.config().card_type_property(\
-            "background_colour", card.card_type))
         # Choose a random tag to use for the color
         tag = card.tag_string()
         if(tag.find(":") != -1):
           tag = tag[:tag.find(":")]
-        print(tag)
         if(tag in self.cat_colors):
           self.config().set_card_type_property(\
             "background_colour", self.cat_colors[tag], card.card_type)
@@ -66,12 +61,9 @@ class CatColorPlugin(Plugin):
 
     def __init__(self, component_manager):
         Plugin.__init__(self, component_manager)
-        #self.config()["cat_color_default"] = ""
     
     def activate(self):
         Plugin.activate(self)
-        #print("test")
-        #self.config()["cat_color_default"] = ""
         self.render_chain("default").\
             register_filter(CatColorReplacer, in_front=True)
 
