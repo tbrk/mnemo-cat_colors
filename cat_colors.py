@@ -1,78 +1,78 @@
 ##############################################################################
 #
-# cat_colors.py <tim@tbrk.org>
+# cat_colors.py 
+#
+# Plugin to change the background color depending on the tag.
+# Based on filter.py by <Peter.Bienstman@UGent.be>
 #
 # Add a cat_colors dictionary to $HOME/.mnemosyne/config.py, that maps
-# category names to X11 color names.
-# (http://en.wikipedia.org/wiki/X11_color_names)
+# category names to RGB hex colors. They should all be in the form 0xFFRRGGBB
+# With RR GG and BB replaced with the hexedecimal numbers for those colors
+#
+# You can also add a default color "cat_color_default", or it will default
+# to 0xFFFFFFFF
 #
 # e.g.
-#   cat_colors = {"Dutch"  : "orange",
-#		  "French" : "lightblue"}
-#
+#   cat_colors = {"Dutch"  : 0xFFAA00BB, "French" : 0xFFAA00BB}
+#   cat_color_default = 0xFFAABBCC
 ##############################################################################
 
-from mnemosyne.core import *
-from mnemosyne.pyqt_ui.plugin import get_main_widget
-from qt import *
-import sys
+from PyQt5 import QtGui
 
-##############################################################################
-#
-# Plugin to change the background color depending on the category.
-#
-##############################################################################
+from mnemosyne.libmnemosyne.plugin import Plugin
+from mnemosyne.libmnemosyne.filter import Filter
 
-class CatColor(Plugin):
-	version = "0.9.0"
+class CatColorReplacer(Filter):
 
-	def warn(self, msg):
-                status = QMessageBox.information(None,
-		   self.main_dlg.trUtf8("Mnemosyne").append(": CatColor plugin"),
-		   msg,
-		   self.main_dlg.trUtf8("&OK"))
+    def __init__(self, component_manager):
+        Filter.__init__(self, component_manager)
+        if(self.config()["cat_colors"] == None):
+            self.config()["cat_colors"] = {}
+        if(self.config()["cat_color_default"] == None):
+            self.config()["cat_color_default"] = 0xFFFFFFFF
+        self.cat_colors = self.config()["cat_colors"]
+        self.default_cat_color = self.config()["cat_color_default"]
 
-	def description(self):
-		return ("Change the background color depending on the category. (v"
-			+ version + ")")
+    def run(self, text, card, fact_key, **render_args):
+        # Choose a random tag to use for the color
+        tag = card.tag_string()
+        if(tag.find(":") != -1):
+          tag = tag[:tag.find(":")]
+        if(tag in self.cat_colors):
+          self.config().set_card_type_property(\
+            "background_colour", self.cat_colors[tag], card.card_type)
+        else:
+          self.config().set_card_type_property(\
+            "background_colour", self.default_cat_color, card.card_type)
 
-	def load(self):
-		self.main_dlg = get_main_widget()
-		# TODO: read the default color from the widget
-		self.default_color = QColor("gray")
-		try: cat_colors = get_config("cat_colors")
-		except KeyError:
-		    self.warn("There is no cat_colors entry in config.py.")
-		    cat_colors = {}
 
-		    # TODO: This line works around an arguable limitation in
-		    # mnemosyne.core.load_config() whereby only known config variables are
-		    # imported from a users config.py. The plugin will not take effect, however,
-		    # until the second time Mnemosyne is started after installation.
-		    set_config("cat_colors", {})
+        for render_chain in self.component_manager.all("render_chain"):
+            render_chain.renderer_for_card_type(card.card_type).\
+                update(card.card_type)
+        return text
 
-		if type(cat_colors) != type({}):
-		    self.warn("The cat_colors entry in config.py is not a dictionary.")
-		    return
 
-		self.cat_colors = {}
-		for (cat, color) in cat_colors.iteritems():
-		    self.cat_colors[cat] = QColor(color)
+class CatColorPlugin(Plugin):
 
-		register_function_hook("filter_q", self.set_color)
+    name = "Category Colors"
+    description = "Change the background color depending on the category"
+    components = [CatColorReplacer]
+    supported_API_level = 2
 
-	def unload(self):
-		self.main_dlg.setPaletteBackgroundColor(self.default_color)
-		unregister_function_hook("filter_q", self.set_color)
+    def __init__(self, component_manager):
+        Plugin.__init__(self, component_manager)
+    
+    def activate(self):
+        Plugin.activate(self)
+        self.render_chain("default").\
+            register_filter(CatColorReplacer, in_front=True)
 
-	def set_color(self, text, card):
-		cat = card.cat.name
-		if self.cat_colors.has_key(cat):
-		    self.main_dlg.setPaletteBackgroundColor(self.cat_colors[cat])
-		else:
-		    self.main_dlg.setPaletteBackgroundColor(self.default_color)
-		return text
+    def deactivate(self):
+        Plugin.deactivate(self)
+        self.render_chain("default").\
+            unregister_filter(CatColorReplacer)
 
-p = CatColor()
-p.load()
+# Register plugin.
 
+from mnemosyne.libmnemosyne.plugin import register_user_plugin
+register_user_plugin(CatColorPlugin)
